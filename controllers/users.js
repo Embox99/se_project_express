@@ -33,13 +33,17 @@ const getUserById = (req, res) => {
       console.error(err);
       console.log(err.name);
       if (err.name === "DocumentNotFoundError") {
-       return res.status(404).send({ message: err.message });
+        return res.status(404).send({ message: err.message });
       }
-      if(err.name==="CastError") {
-       return res.status("400").send({message: err.message});
-      };
+      if (err.name === "CastError") {
+        return res.status("400").send({ message: err.message });
+      }
       return res.status(500).send({ message: err.message });
     });
 };
+
+const likeItem = (req, res) => {};
+
+const dislikeItem = (req, res) => {};
 
 module.exports = { getUsers, createUser, getUserById };
