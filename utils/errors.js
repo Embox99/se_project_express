@@ -1,7 +1,14 @@
 const errorCode = {
-  badRequest:400,
-  notFound:404,
+  badRequest: 400,
+  notFound: 404,
   serverError: 500,
 };
 
-module.exports = {errorCode};
+const errorMessage = {
+  badRequest: "Invalid data",
+  idNotFound: "Requested resource not found",
+  defaultError: "An error has occurred on the server",
+  validationError: "Validation failed",
+};
+
+module.exports = { errorCode, errorMessage };

@@ -1,12 +1,14 @@
 const User = require("../models/users");
-const { errorCode } = require("../utils/errors");
+const { errorCode, errorMessage } = require("../utils/errors");
 
 const getUsers = (req, res) => {
   User.find({})
-    .then((users) => res.status(200).send(users))
+    .then((users) => res.send(users))
     .catch((err) => {
       console.error(err);
-      return res.status(errorCode.serverError).send({ message: err.message });
+      return res
+        .status(errorCode.serverError)
+        .send({ message: errorMessage.defaultError });
     });
 };
 
@@ -17,9 +19,13 @@ const createUser = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "ValidationError") {
-        return res.status(errorCode.badRequest).send({ message: err.message });
+        return res
+          .status(errorCode.badRequest)
+          .send({ message: errorMessage.validationError });
       }
-      return res.status(errorCode.serverError).send({ message: err.message });
+      return res
+        .status(errorCode.serverError)
+        .send({ message: errorMessage.defaultError });
     });
 };
 
@@ -28,18 +34,24 @@ const getUserById = (req, res) => {
   User.findById(userId)
     .orFail()
     .then((user) => {
-      res.status(200).send(user);
+      res.send(user);
     })
     .catch((err) => {
       console.error(err);
       console.log(err.name);
       if (err.name === "DocumentNotFoundError") {
-        return res.status(errorCode.notFound).send({ message: err.message });
+        return res
+          .status(errorCode.notFound)
+          .send({ message: errorMessage.idNotFound });
       }
       if (err.name === "CastError") {
-        return res.status(errorCode.badRequest).send({ message: err.message });
+        return res
+          .status(errorCode.badRequest)
+          .send({ message: errorMessage.badRequest });
       }
-      return res.status(errorCode.serverError).send({ message: err.message });
+      return res
+        .status(errorCode.serverError)
+        .send({ message: errorMessage.defaultError });
     });
 };
 
