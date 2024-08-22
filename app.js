@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const mainRouter = require("./routes/index");
+const {createUser, login} = require("./controllers/users");
 
 const app = express();
 
@@ -22,6 +23,9 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 app.use("/", mainRouter);
+
+app.post('/signin', login);
+app.post('/signup', createUser);
 
 app.listen(PORT, () => {
   console.log(`Server is running on ${PORT} port`);
