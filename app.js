@@ -4,6 +4,7 @@ const mainRouter = require("./routes/index");
 const { createUser, login } = require("./controllers/users");
 const { getItems } = require("./controllers/clothingItems");
 const auth = require("./middlewares/auth");
+const cors = require("cors");
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.get("/items", getItems);
 
 app.use(auth);
 app.use("/", mainRouter);
+app.use(cors());
 
 app.listen(PORT, () => {
   console.log(`Server is running on ${PORT} port`);
