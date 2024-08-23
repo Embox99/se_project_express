@@ -12,7 +12,7 @@ const userSchema = new mongoose.Schema({
         return validator.isURL(value);
       },
       message: "You must enter a valid URL",
-    },
+    },},
     email: {
       type: String,
       required: [true, "the email field is required"],
@@ -23,10 +23,9 @@ const userSchema = new mongoose.Schema({
       },
     },
     password: { type: String, required: [true, "the password is required"], select: false, },
-  },
 });
 
-userSchema.static.User.findUserByCredentials() = function(email, password){
+userSchema.statics.findUserByCredentials() = function(email, password){
   return this.findOne({email}).select('+password')
   .then((user)=>{
     if(!user){
