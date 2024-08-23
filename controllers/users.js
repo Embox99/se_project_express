@@ -81,4 +81,71 @@ const login = (req, res) => {
     });
 };
 
-module.exports = { getUsers, createUser, getUserById, login };
+const getCurrentUser = (req, res) => {
+  const userId = req.user._id;
+
+  User.findById(userId)
+    .then((user) => {
+      if (!user) {
+        return res
+          .status(errorCode.notFound)
+          .send({ message: errorMessage.idNotFound });
+      }
+      res.send(user);
+    })
+    .catch((err) => {
+      console.error(err);
+      res
+        .status(errorCode.serverError)
+        .send({ message: errorMessage.defaultError });
+    });
+};
+
+const updateCurrentProfile = (req, res) => {
+  const { name, avatar } = req.body;
+  const userId = req.user._id;
+
+  User.findByIdAndUpdate(
+    userId,
+    { name, avatar },
+    { new: true, runValidators: true }
+  )
+    .then((user) => {
+      if (!user) {
+        return res
+          .status(errorCode.notFound)
+          .send({ message: errorMessage.idNotFound });
+      }
+      res.send(user);
+    })
+    .catch((err) => {
+      console.error(err);
+      if (err.name === "DocumentNotFoundError") {
+        return res
+          .status(errorCode.notFound)
+          .send({ message: errorMessage.idNotFound });
+      }
+      if (err.name === "CastError") {
+        return res
+          .status(errorCode.badRequest)
+          .send({ message: errorMessage.badRequest });
+      }
+      if (err.name === "ValidationError") {
+        return res
+          .status(errorCode.badRequest)
+          .send({ message: errorMessage.validationError });
+      }
+      return res
+        .status(errorCode.serverError)
+        .send({ message: errorMessage.defaultError });
+    });
+};
+
+module.exports = {
+  getUsers,
+  createUser,
+  getUserById,
+  login,
+  getCurrentUser,
+  updateCurrentProfile,
+};
