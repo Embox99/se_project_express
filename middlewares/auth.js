@@ -8,7 +8,7 @@ const auth = (req, res, next) => {
   if (!authorization || !authorization.startsWith("Bearer ")) {
     return res
       .status(errorCode.unauthorized)
-      .send({ message: "Authorization Required" });
+      .send({ message: errorMessage.authorizationError });
   }
 
   const token = authorization.replace("Bearer ", "");
@@ -19,11 +19,12 @@ const auth = (req, res, next) => {
   } catch (err) {
     return res
       .status(errorCode.unauthorized)
-      .send({ message: "Authorization Required" });
+      .send({ message: errorMessage.authorizationError });
   }
 
   req.user = payload;
   next();
+  return;
 };
 
 module.exports = auth;

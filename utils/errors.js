@@ -11,6 +11,7 @@ const errorMessage = {
   idNotFound: "Requested resource not found",
   defaultError: "An error has occurred on the server",
   validationError: "Validation failed",
+  authorizationError: "Authorization Required",
 };
 
 module.exports = { errorCode, errorMessage };

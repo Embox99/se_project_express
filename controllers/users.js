@@ -1,7 +1,7 @@
 const bcrypt = require("bcrypt");
 const User = require("../models/users");
 const { errorCode, errorMessage } = require("../utils/errors");
-const jwt = reuqire("jsonwebtoken");
+const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../utils/config");
 
 const getUsers = (req, res) => {
@@ -91,7 +91,7 @@ const getCurrentUser = (req, res) => {
           .status(errorCode.notFound)
           .send({ message: errorMessage.idNotFound });
       }
-      res.send(user);
+      return res.send(user);
     })
     .catch((err) => {
       console.error(err);
@@ -116,7 +116,7 @@ const updateCurrentProfile = (req, res) => {
           .status(errorCode.notFound)
           .send({ message: errorMessage.idNotFound });
       }
-      res.send(user);
+      return res.send(user);
     })
     .catch((err) => {
       console.error(err);
