@@ -5,17 +5,6 @@ const User = require("../models/users");
 const { errorCode, errorMessage } = require("../utils/errors");
 const { JWT_SECRET } = require("../utils/config");
 
-const getUsers = (req, res) => {
-  User.find({})
-    .then((users) => res.send(users))
-    .catch((err) => {
-      console.error(err);
-      return res
-        .status(errorCode.serverError)
-        .send({ message: errorMessage.defaultError });
-    });
-};
-
 const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
 
@@ -63,32 +52,6 @@ const createUser = (req, res) => {
     });
 };
 
-const getUserById = (req, res) => {
-  const { userId } = req.params;
-  User.findById(userId)
-    .orFail()
-    .then((user) => {
-      res.send(user);
-    })
-    .catch((err) => {
-      console.error(err);
-      console.log(err.name);
-      if (err.name === "DocumentNotFoundError") {
-        return res
-          .status(errorCode.notFound)
-          .send({ message: errorMessage.idNotFound });
-      }
-      if (err.name === "CastError") {
-        return res
-          .status(errorCode.badRequest)
-          .send({ message: errorMessage.badRequest });
-      }
-      return res
-        .status(errorCode.serverError)
-        .send({ message: errorMessage.defaultError });
-    });
-};
-
 const login = (req, res) => {
   const { email, password } = req.body;
 
@@ -111,9 +74,14 @@ const login = (req, res) => {
     })
     .catch((err) => {
       console.error(err);
-      res
-        .status(errorCode.unauthorized)
-        .send({ message: "wrong email or password" });
+      if (err.message === "wrong email or password") {
+        res
+          .status(errorCode.unauthorized)
+          .send({ message: "wrong email or password" });
+      }
+      return res
+        .status(errorCode.serverError)
+        .send({ message: errorMessage.badRequest });
     });
 };
 
@@ -156,11 +124,6 @@ const updateCurrentProfile = (req, res) => {
     })
     .catch((err) => {
       console.error(err);
-      if (err.name === "DocumentNotFoundError") {
-        return res
-          .status(errorCode.notFound)
-          .send({ message: errorMessage.idNotFound });
-      }
       if (err.name === "CastError") {
         return res
           .status(errorCode.badRequest)
@@ -178,9 +141,7 @@ const updateCurrentProfile = (req, res) => {
 };
 
 module.exports = {
-  getUsers,
   createUser,
-  getUserById,
   login,
   getCurrentUser,
   updateCurrentProfile,

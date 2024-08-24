@@ -6,7 +6,7 @@ const {
 } = require("../controllers/users");
 
 router.use(auth);
-router.get("/me", auth, getCurrentUser);
+router.get("/me", getCurrentUser);
 router.patch("/me", updateCurrentProfile);
 
 module.exports = router;
