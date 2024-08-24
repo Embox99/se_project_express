@@ -17,12 +17,30 @@ const getUsers = (req, res) => {
 
 const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
-  const hashedPassword = bcrypt.hash(password, 10);
-  User.create({ name, avatar, email, password: hashedPassword })
-    .then((user) => res.status(201).send(user))
+
+  if (!email) {
+    return res
+      .status(errorCode.badRequest)
+      .send({ message: "Email and password are required" });
+  }
+  if (!validator.isEmail(email)) {
+    return res.status(errorCode.badRequest).send({ message: "Invalid Email" });
+  }
+  return User.findOne({ email })
+    .then((existingUser) => {
+      if (existingUser) {
+        throw new Error("Email is already used");
+      }
+      return bcrypt.hash(password, 10);
+    })
+    .then((hash) => {
+      User.create({ name, avatar, email, password: hash }).then((user) => {
+        res.send({ name: user.name, avatar: user.avatar, email: user.email });
+      });
+    })
     .catch((err) => {
       console.error(err);
-      if (err.code === 11000) {
+      if (err.message === "Email is already used") {
         return res
           .status(errorCode.conflictError)
           .send({ message: "email is already used" });
@@ -73,7 +91,11 @@ const login = (req, res) => {
       .send({ message: "Email and password are required" });
   }
 
-  User.findUserByCredentials(email, password)
+  if (!validator.isEmail(email)) {
+    return res.status(errorCode.badRequest).send({ message: "Invalid Email" });
+  }
+
+  return User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: "7d",
