@@ -4,10 +4,11 @@ const {
   createItem,
   deleteItem,
   likeItem,
-  dislikeItem, getItems
+  dislikeItem,
+  getItems,
 } = require("../controllers/clothingItems");
 
-router.get("/items", getItems);
+router.get("/", getItems);
 
 router.use(auth);
 
