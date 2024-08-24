@@ -3,6 +3,7 @@ const errorCode = {
   unauthorized: 401,
   forbidden: 403,
   notFound: 404,
+  conflictError: 409,
   serverError: 500,
 };
 

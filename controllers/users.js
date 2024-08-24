@@ -24,7 +24,7 @@ const createUser = (req, res) => {
       console.error(err);
       if (err.code === 11000) {
         return res
-          .status(errorCode.badRequest)
+          .status(errorCode.conflictError)
           .send({ message: "email is already used" });
       }
       if (err.name === "ValidationError") {
@@ -66,6 +66,13 @@ const getUserById = (req, res) => {
 
 const login = (req, res) => {
   const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res
+      .status(errorCode.badRequest)
+      .send({ message: "Email and password are required" });
+  }
+
   User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
