@@ -16,47 +16,6 @@ const getUsers = (req, res) => {
     });
 };
 
-/*const createUser = (req, res) => {
-  const { name, avatar, email, password } = req.body;
-
-  if (!email || !password) {
-    return res
-      .status(errorCode.badRequest)
-      .send({ message: "Email and password are required" });
-  }
-  if (!validator.isEmail(email)) {
-    return res.status(errorCode.badRequest).send({ message: "Invalid Email" });
-  }
-  return User.findOne({ email })
-    .then((existingUser) => {
-      if (existingUser) {
-        throw new Error("Email is already used");
-      }
-      return bcrypt.hash(password, 10);
-    })
-    .then((hash) => {
-      User.create({ name, avatar, email, password: hash }).then((user) => {
-        res.send({ name: user.name, avatar: user.avatar, email: user.email });
-      });
-    })
-    .catch((err) => {
-      console.error(err);
-      if (err.message === "Email is already used") {
-        return res
-          .status(errorCode.conflictError)
-          .send({ message: "email is already used" });
-      }
-      if (err.name === "ValidationError") {
-        return res
-          .status(errorCode.badRequest)
-          .send({ message: errorMessage.validationError });
-      }
-      return res
-        .status(errorCode.serverError)
-        .send({ message: errorMessage.defaultError });
-    });
-};*/
-
 const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
 
@@ -77,9 +36,7 @@ const createUser = (req, res) => {
       }
       return bcrypt.hash(password, 10);
     })
-    .then((hash) => {
-      return User.create({ name, avatar, email, password: hash });
-    })
+    .then((hash) => User.create({ name, avatar, email, password: hash }))
     .then((user) => {
       res
         .status(201)

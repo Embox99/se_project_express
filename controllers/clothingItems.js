@@ -71,7 +71,7 @@ const deleteItem = (req, res) => {
             .status(errorCode.serverError)
             .send({ message: errorMessage.defaultError });
         });
-    
+
 };
 
 const likeItem = (req, res) => {
