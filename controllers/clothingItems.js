@@ -34,37 +34,44 @@ const createItem = (req, res) => {
 const deleteItem = (req, res) => {
   const { itemId } = req.params;
   const userId = req.user._id;
-  Item.findById(itemId).then((item) => {
-    if (!item) {
-      return res
-        .status(errorCode.notFound)
-        .send({ message: errorMessage.idNotFound });
-    }
-    if (item.owner.toString() !== userId) {
-      return res
-        .status(errorCode.forbidden)
-        .send({ message: "The item can`t be deleted" });
-    }
-    return Item.findByIdAndDelete(itemId)
-      .orFail()
-      .then(() => res.send({ message: "item deleted succesesfully" }))
-      .catch((err) => {
-        console.error(err);
-        if (err.name === "DocumentNotFoundError") {
-          return res
-            .status(errorCode.notFound)
-            .send({ message: errorMessage.idNotFound });
-        }
-        if (err.name === "CastError") {
-          return res
-            .status(errorCode.badRequest)
-            .send({ message: errorMessage.badRequest });
-        }
+
+  Item.findById(itemId)
+    .orFail()
+    .then((item) => {
+      if (!item) {
         return res
-          .status(errorCode.serverError)
-          .send({ message: errorMessage.defaultError });
-      });
-  });
+          .status(errorCode.notFound)
+          .send({ message: errorMessage.idNotFound });
+      }
+      if (item.owner.toString() !== userId) {
+        const error = new Error();
+        error.name = "Access Denied";
+        throw error;
+      }
+      return Item.findByIdAndDelete(itemId)})
+        .then((item) => res.send(item))
+        .catch((err) => {
+          console.error(err);
+          if (err.name === "Access Denied") {
+            return res
+              .status(errorCode.forbidden)
+              .send({ message: "Access Denied" });
+          }
+          if (err.name === "DocumentNotFoundError") {
+            return res
+              .status(errorCode.notFound)
+              .send({ message: errorMessage.idNotFound });
+          }
+          if (err.name === "CastError") {
+            return res
+              .status(errorCode.badRequest)
+              .send({ message: errorMessage.badRequest });
+          }
+          return res
+            .status(errorCode.serverError)
+            .send({ message: errorMessage.defaultError });
+        });
+    
 };
 
 const likeItem = (req, res) => {
