@@ -1,8 +1,8 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const limiter = require("./utils/rateLimitConfig");
 const helmet = require("helmet");
+const limiter = require("./utils/rateLimitConfig");
 const mainRouter = require("./routes/index");
 
 const app = express();
