@@ -4,6 +4,7 @@ const cors = require("cors");
 const helmet = require("helmet");
 const limiter = require("./utils/rateLimitConfig");
 const mainRouter = require("./routes/index");
+const errorHandler = require("./middlewares/error-handler");
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use(helmet());
 app.use(cors());
 app.use(limiter);
 app.use("/", mainRouter);
+app.use(errorHandler);
 app.listen(PORT, () => {
   console.log(`Server is running on ${PORT} port`);
 });

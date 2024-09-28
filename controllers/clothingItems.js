@@ -1,18 +1,21 @@
 const Item = require("../models/clothingItems");
 const { errorCode, errorMessage } = require("../utils/errors");
+const {
+  BadRequestError,
+  ForbiddenError,
+  NotFoundError,
+} = require("../errors/errors");
 
-const getItems = (req, res) => {
+const getItems = (req, res, next) => {
   Item.find({})
     .then((items) => res.send(items))
     .catch((err) => {
       console.error(err);
-      return res
-        .status(errorCode.serverError)
-        .send({ message: errorMessage.defaultError });
+      next(err);
     });
 };
 
-const createItem = (req, res) => {
+const createItem = (req, res, next) => {
   const { name, weather, imageUrl } = req.body;
   Item.create({ name, weather, imageUrl, owner: req.user._id })
     .then((item) => {
@@ -21,82 +24,55 @@ const createItem = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "ValidationError") {
-        return res
-          .status(errorCode.badRequest)
-          .send({ message: errorMessage.defaultError });
+        next(new BadRequestError(errorMessage.badRequest));
+      } else {
+        next(err);
       }
-      return res
-        .status(errorCode.serverError)
-        .send({ message: errorMessage.defaultError });
     });
 };
 
-const deleteItem = (req, res) => {
+const deleteItem = (req, res, next) => {
   const { itemId } = req.params;
   const userId = req.user._id;
 
   Item.findById(itemId)
-    .orFail()
+    .orFail(() => new NotFoundError(errorMessage.idNotFound))
     .then((item) => {
-      if (!item) {
-        return res
-          .status(errorCode.notFound)
-          .send({ message: errorMessage.idNotFound });
-      }
       if (item.owner.toString() !== userId) {
-        const error = new Error();
-        error.name = "Access Denied";
-        throw error;
+        throw new ForbiddenError("Access denied");
       }
-      return Item.findByIdAndDelete(itemId)})
-        .then((item) => res.send(item))
-        .catch((err) => {
-          console.error(err);
-          if (err.name === "Access Denied") {
-            return res
-              .status(errorCode.forbidden)
-              .send({ message: "Access Denied" });
-          }
-          if (err.name === "DocumentNotFoundError") {
-            return res
-              .status(errorCode.notFound)
-              .send({ message: errorMessage.idNotFound });
-          }
-          if (err.name === "CastError") {
-            return res
-              .status(errorCode.badRequest)
-              .send({ message: errorMessage.badRequest });
-          }
-          return res
-            .status(errorCode.serverError)
-            .send({ message: errorMessage.defaultError });
-        });
-
+      return Item.findByIdAndDelete(itemId);
+    })
+    .then((item) => res.send(item))
+    .catch((err) => {
+      console.error(err);
+      if (err instanceof NotFoundError || err instanceof ForbiddenError) {
+        next(err);
+      } else if (err.name === "CastError") {
+        next(new BadRequestError(errorMessage.badRequest));
+      } else {
+        next(err);
+      }
+    });
 };
 
-const likeItem = (req, res) => {
+const likeItem = (req, res, next) => {
   Item.findByIdAndUpdate(
     req.params.itemId,
     { $addToSet: { likes: req.user._id } },
     { new: true }
   )
-    .orFail()
+    .orFail(() => new NotFoundError(errorMessage.idNotFound))
     .then((item) => res.send(item))
     .catch((err) => {
       console.error(err);
-      if (err.name === "DocumentNotFoundError") {
-        return res
-          .status(errorCode.notFound)
-          .send({ message: errorMessage.idNotFound });
+      if (err instanceof NotFoundError) {
+        next(err);
+      } else if (err.name === "CastError") {
+        next(BadRequestError(errorMessage.badRequest));
+      } else {
+        next(err);
       }
-      if (err.name === "CastError") {
-        return res
-          .status(errorCode.badRequest)
-          .send({ message: errorMessage.badRequest });
-      }
-      return res
-        .status(errorCode.serverError)
-        .send({ message: errorMessage.defaultError });
     });
 };
 
@@ -106,25 +82,19 @@ const dislikeItem = (req, res) => {
     { $pull: { likes: req.user._id } },
     { new: true }
   )
-    .orFail()
+    .orFail(() => new NotFoundError(errorMessage.idNotFound))
     .then((item) => {
       res.send(item);
     })
     .catch((err) => {
       console.error(err);
-      if (err.name === "DocumentNotFoundError") {
-        return res
-          .status(errorCode.notFound)
-          .send({ message: errorMessage.idNotFound });
+      if (err instanceof NotFoundError) {
+        next(err);
+      } else if (err.name === "CastError") {
+        next(new BadRequestError(errorMessage.badRequest));
+      } else {
+        next(err);
       }
-      if (err.name === "CastError") {
-        return res
-          .status(errorCode.badRequest)
-          .send({ message: errorMessage.badRequest });
-      }
-      return res
-        .status(errorCode.serverError)
-        .send({ message: errorMessage.defaultError });
     });
 };
 

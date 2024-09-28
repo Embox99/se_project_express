@@ -4,24 +4,28 @@ const validator = require("validator");
 const User = require("../models/users");
 const { errorCode, errorMessage } = require("../utils/errors");
 const { JWT_SECRET } = require("../utils/config");
+const {
+  BadRequestError,
+  UnauthorizedError,
+  ConflictError,
+  NotFoundError,
+} = require("../errors/errors");
 
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const { name, avatar, email, password } = req.body;
 
   if (!email || !password) {
-    return res
-      .status(errorCode.badRequest)
-      .send({ message: "Email and password are required" });
+    return next(new BadRequestError("Email and password are required"));
   }
 
   if (!validator.isEmail(email)) {
-    return res.status(errorCode.badRequest).send({ message: "Invalid Email" });
+    return next(new BadRequestError("Invalid Email"));
   }
 
   return User.findOne({ email })
     .then((existingUser) => {
       if (existingUser) {
-        throw new Error("Email is already used");
+        throw new ConflictError("Email is already used");
       }
       return bcrypt.hash(password, 10);
     })
@@ -34,35 +38,25 @@ const createUser = (req, res) => {
     .catch((err) => {
       console.error(err);
 
-      if (err.message === "Email is already used") {
-        return res
-          .status(errorCode.conflictError)
-          .send({ message: "Email is already used" });
+      if (err instanceof ConflictError) {
+        next(err);
+      } else if (err.name === "ValidationError") {
+        next(new BadRequestError("Validation failed"));
+      } else {
+        next(err);
       }
-
-      if (err.name === "ValidationError") {
-        return res
-          .status(errorCode.badRequest)
-          .send({ message: "Validation failed" });
-      }
-
-      return res
-        .status(errorCode.serverError)
-        .send({ message: errorMessage.defaultError });
     });
 };
 
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res
-      .status(errorCode.badRequest)
-      .send({ message: "Email and password are required" });
+    return next(new BadRequestError("Email and password are required"));
   }
 
   if (!validator.isEmail(email)) {
-    return res.status(errorCode.badRequest).send({ message: "Invalid Email" });
+    throw new ConflictError("Email is already used");
   }
 
   return User.findUserByCredentials(email, password)
@@ -75,37 +69,30 @@ const login = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.message === "wrong email or password") {
-        return res
-          .status(errorCode.unauthorized)
-          .send({ message: "wrong email or password" });
+        next(new UnauthorizedError("wrong email or password"));
+      } else {
+        next(err);
       }
-      return res
-        .status(errorCode.serverError)
-        .send({ message: errorMessage.badRequest });
     });
 };
 
-const getCurrentUser = (req, res) => {
+const getCurrentUser = (req, res, next) => {
   const userId = req.user._id;
 
   User.findById(userId)
     .then((user) => {
       if (!user) {
-        return res
-          .status(errorCode.notFound)
-          .send({ message: errorMessage.idNotFound });
+        throw new NotFoundError(errorMessage.idNotFound);
       }
       return res.send(user);
     })
     .catch((err) => {
       console.error(err);
-      res
-        .status(errorCode.serverError)
-        .send({ message: errorMessage.defaultError });
+      next(err);
     });
 };
 
-const updateCurrentProfile = (req, res) => {
+const updateCurrentProfile = (req, res, next) => {
   const { name, avatar } = req.body;
   const userId = req.user._id;
 
@@ -116,27 +103,19 @@ const updateCurrentProfile = (req, res) => {
   )
     .then((user) => {
       if (!user) {
-        return res
-          .status(errorCode.notFound)
-          .send({ message: errorMessage.idNotFound });
+        throw new NotFoundError(errorMessage.idNotFound);
       }
       return res.send(user);
     })
     .catch((err) => {
       console.error(err);
       if (err.name === "CastError") {
-        return res
-          .status(errorCode.badRequest)
-          .send({ message: errorMessage.badRequest });
+        next(new BadRequestError(errorMessage.badRequest));
+      } else if (err.name === "ValidationError") {
+        next(new BadRequestError(errorMessage.badRequest));
+      } else {
+        next(err);
       }
-      if (err.name === "ValidationError") {
-        return res
-          .status(errorCode.badRequest)
-          .send({ message: errorMessage.validationError });
-      }
-      return res
-        .status(errorCode.serverError)
-        .send({ message: errorMessage.defaultError });
     });
 };
 
