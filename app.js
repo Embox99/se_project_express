@@ -5,6 +5,8 @@ const helmet = require("helmet");
 const limiter = require("./utils/rateLimitConfig");
 const mainRouter = require("./routes/index");
 const errorHandler = require("./middlewares/error-handler");
+const { errorLogger, requestLogger } = require("./middlewares/logger");
+const { errors } = require("celebrate");
 
 const app = express();
 
@@ -20,9 +22,12 @@ mongoose
 app.use(express.json());
 app.use(helmet());
 app.use(cors());
+app.use(requestLogger);
 app.use(limiter);
 app.use("/", mainRouter);
-app.use(errorHandler);
 app.listen(PORT, () => {
   console.log(`Server is running on ${PORT} port`);
 });
+app.use(errorLogger);
+app.use(errors());
+app.use(errorHandler);
