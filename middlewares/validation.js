@@ -16,7 +16,7 @@ const validateEmail = (value, helpers) => {
 };
 
 const validateId = (value, helpers) => {
-  if (validatro.isHexadecimal(value)) {
+  if (validator.isHexadecimal(value)) {
     return value;
   }
   return helpers.error(string.uri);
@@ -74,7 +74,7 @@ const validateLogin = celebrate({
 
 const validateUserId = celebrate({
   params: Joi.object().keys({
-    id: Joi.string().length(24).required().custom(validateId).messages({
+    itemId: Joi.string().length(24).required().custom(validateId).messages({
       "string.uri": "Must be a hexadecimal value length of 24 characters",
     }),
   }),
