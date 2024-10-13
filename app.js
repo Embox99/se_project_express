@@ -24,6 +24,11 @@ app.use(helmet());
 app.use(cors());
 app.use(requestLogger);
 app.use(limiter);
+app.get("/crash-test", () => {
+  setTimeout(() => {
+    throw new Error("Server will crash now");
+  }, 0);
+});
 app.use("/", mainRouter);
 app.listen(PORT, () => {
   console.log(`Server is running on ${PORT} port`);
