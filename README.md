@@ -16,12 +16,10 @@ The "WTWR" project is designed to help users decide what to wear based on the we
 - Nodemon: A utility that automatically restarts the server when file changes are detected, improving the development workflow.
 - Validator: A library used for validating and sanitizing inputs, particularly URLs in this project.
 
-## Running the Project
+**Frontend**
 
-`npm run start` — to launch the server
+- [Link to my frontend repo](https://github.com/Embox99/se_project_react)
 
-`npm run dev` — to launch the server with the hot reload feature
+**Website**
 
-### Testing
-
-Before committing your code, make sure you edit the file `sprint.txt` in the root folder. The file `sprint.txt` should contain the number of the sprint you're currently working on. For ex. 12
+- [Link to my website](https://wtwrp.crabdance.com/)
