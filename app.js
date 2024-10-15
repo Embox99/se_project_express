@@ -3,11 +3,11 @@ require("dotenv").config();
 const mongoose = require("mongoose");
 const cors = require("cors");
 const helmet = require("helmet");
+const { errors } = require("celebrate");
 const limiter = require("./utils/rateLimitConfig");
 const mainRouter = require("./routes/index");
 const errorHandler = require("./middlewares/error-handler");
 const { errorLogger, requestLogger } = require("./middlewares/logger");
-const { errors } = require("celebrate");
 
 const app = express();
 

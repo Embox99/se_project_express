@@ -1,3 +1,7 @@
-const JWT_SECRET = "my-secret-key";
+require("dotenv").config();
 
-module.exports = {JWT_SECRET};
+const JWT_SECRET = process.env.JWT_SECRET || "my_secret_key";
+
+module.exports = {
+  JWT_SECRET,
+};

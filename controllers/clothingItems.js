@@ -1,10 +1,8 @@
 const Item = require("../models/clothingItems");
-const { errorCode, errorMessage } = require("../utils/errors");
-const {
-  BadRequestError,
-  ForbiddenError,
-  NotFoundError,
-} = require("../errors/errors");
+const { errorMessage } = require("../utils/errors");
+const BadRequestError = require("../errors/badRequestError");
+const ForbiddenError = require("../errors/forbiddenError");
+const NotFoundError = require("../errors/notFoundError");
 
 const getItems = (req, res, next) => {
   Item.find({})
@@ -76,7 +74,7 @@ const likeItem = (req, res, next) => {
     });
 };
 
-const dislikeItem = (req, res) => {
+const dislikeItem = (req, res, next) => {
   Item.findByIdAndUpdate(
     req.params.itemId,
     { $pull: { likes: req.user._id } },

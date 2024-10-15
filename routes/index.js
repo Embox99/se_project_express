@@ -6,6 +6,7 @@ const {
   validateCreateUser,
 } = require("../middlewares/validation");
 const { errorCode, errorMessage } = require("../utils/errors");
+const NotFoundError = require("../errors/notFoundError");
 const { login, createUser } = require("../controllers/users");
 
 router.post("/signin", validateLogin, login);
@@ -13,8 +14,8 @@ router.post("/signup", validateCreateUser, createUser);
 
 router.use("/users", userRouter);
 router.use("/items", clothingItemRouter);
-router.use((req, res) => {
-  res.status(errorCode.notFound).send({ message: errorMessage.idNotFound });
-});
+router.use((req, res, next) =>
+  next(new NotFoundError(errorCode.notFound, errorMessage.idNotFound))
+);
 
 module.exports = router;

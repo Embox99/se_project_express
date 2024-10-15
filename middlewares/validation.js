@@ -5,21 +5,21 @@ const validateUrl = (value, helpers) => {
   if (validator.isURL(value)) {
     return value;
   }
-  return helpers.error(string.uri);
+  return helpers.error("string.uri");
 };
 
 const validateEmail = (value, helpers) => {
   if (validator.isEmail(value)) {
     return value;
   }
-  return helpers.error(string.uri);
+  return helpers.error("string.uri");
 };
 
 const validateId = (value, helpers) => {
   if (validator.isHexadecimal(value)) {
     return value;
   }
-  return helpers.error(string.uri);
+  return helpers.error("string.uri");
 };
 
 const validateCreateItem = celebrate({
@@ -80,9 +80,23 @@ const validateUserId = celebrate({
   }),
 });
 
+const validateProfileUpdate = celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().required().min(2).max(30).message({
+      "string.min": 'The minimum length of the "name" field is 2',
+      "string.max": 'The maximum length of the "name" field is 30',
+      "string.empty": 'The "name" field must be filled in',
+    }),
+    avatar: Joi.string().required.custom(validateUrl).messages({
+      "string.url": 'the "imageUrl" field must be a valid url',
+    }),
+  }),
+});
+
 module.exports = {
   validateCreateItem,
   validateCreateUser,
   validateLogin,
   validateUserId,
+  validateProfileUpdate,
 };
