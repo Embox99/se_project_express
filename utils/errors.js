@@ -1,12 +1,3 @@
-const errorCode = {
-  badRequest: 400,
-  unauthorized: 401,
-  forbidden: 403,
-  notFound: 404,
-  conflictError: 409,
-  serverError: 500,
-};
-
 const errorMessage = {
   badRequest: "Invalid data",
   idNotFound: "Requested resource not found",
@@ -15,4 +6,4 @@ const errorMessage = {
   authorizationError: "Authorization Required",
 };
 
-module.exports = { errorCode, errorMessage };
+module.exports = { errorMessage };
