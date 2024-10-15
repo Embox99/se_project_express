@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const auth = require("../middlewares/auth");
-const { validateProfileUpdate } = require("../middlewares/validation.js");
+const { validateProfileUpdate } = require("../middlewares/validation");
 const {
   getCurrentUser,
   updateCurrentProfile,
