@@ -5,7 +5,7 @@ const {
   validateLogin,
   validateCreateUser,
 } = require("../middlewares/validation");
-const { errorCode, errorMessage } = require("../utils/errors");
+const { errorMessage } = require("../utils/errors");
 const NotFoundError = require("../errors/notFoundError");
 const { login, createUser } = require("../controllers/users");
 
